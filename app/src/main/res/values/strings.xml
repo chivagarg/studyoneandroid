@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">StudyONE</string>
+    <string name="daily_word_button_text">Go!</string>
+    <string name="daily_word_ready_prompt">Your word of the day is ready!</string>
+    <string name="welcome">welcome</string>
+    <string name="sign_in_button_text">Sign in with Google</string>
+</resources>
