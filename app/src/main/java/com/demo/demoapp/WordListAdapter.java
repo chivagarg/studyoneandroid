@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
@@ -23,10 +24,10 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     // you provide access to all the views for a data item in a view holder
     public static class WordViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView textView;
-        public WordViewHolder(TextView v) {
+        public CardView cardView;
+        public WordViewHolder(CardView v) {
             super(v);
-            textView = v;
+            cardView = v;
         }
     }
 
@@ -35,8 +36,8 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     public WordViewHolder onCreateViewHolder(ViewGroup parent,
                                              int viewType) {
         // create a new view
-        TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.my_text_view, parent, false);
+        CardView v = (CardView) LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.word_list_item, parent, false);
         WordViewHolder vh = new WordViewHolder(v);
         return vh;
     }
@@ -46,7 +47,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     public void onBindViewHolder(WordViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.textView.setText(dataset[position]);
+        ((TextView)holder.cardView.findViewById(R.id.card_view_word)).setText(dataset[position]);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
