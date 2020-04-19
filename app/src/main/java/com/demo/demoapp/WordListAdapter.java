@@ -8,15 +8,20 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.demo.demoapp.domain.DailyWord;
+
+import java.util.Arrays;
+import java.util.List;
+
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
 
     private Context context;
-    private String[] dataset;
+    private List<DailyWord> dailyWords;
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public WordListAdapter(Context mContext, String[] dataset) {
+    public WordListAdapter(Context mContext, List<DailyWord> dailyWords) {
         this.context = mContext;
-        this.dataset = dataset;
+        this.dailyWords = dailyWords;
     }
 
     // Provide a reference to the views for each data item
@@ -47,12 +52,16 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     public void onBindViewHolder(WordViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        ((TextView)holder.cardView.findViewById(R.id.card_view_word)).setText(dataset[position]);
+        ((TextView)holder.cardView.findViewById(R.id.card_view_word)).setText(dailyWords.get(position).getWord());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return dataset == null ? 0 : dataset.length;
+        return dailyWords == null ? 0 : dailyWords.size();
+    }
+
+    void setDailyWords(List<DailyWord> dailyWords) {
+        this.dailyWords = dailyWords;
     }
 }

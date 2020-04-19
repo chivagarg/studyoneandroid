@@ -8,9 +8,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.demo.demoapp.domain.DailyWord;
+import com.demo.demoapp.events.ReminderWordsEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class WordListFragment extends Fragment {
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private WordListAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
     @Override
@@ -29,9 +39,29 @@ public class WordListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter
-        adapter = new WordListAdapter(view.getContext(), new String[]{"foo", "bar", "baz"});
+        adapter = new WordListAdapter(view.getContext(), new ArrayList<DailyWord>());
         recyclerView.setAdapter(adapter);
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(ReminderWordsEvent reminderWordsEvent) {
+        System.out.println("Received reminder count: " + reminderWordsEvent.getReminderWords().get().size());
+        adapter.setDailyWords(reminderWordsEvent.getReminderWords().get());
+        adapter.notifyDataSetChanged();
+        /* Do something */
     }
 }
 

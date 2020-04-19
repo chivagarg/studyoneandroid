@@ -8,4 +8,8 @@ public class ReminderWords {
     public ReminderWords(List<DailyWord> reminders) {
         this.reminders = reminders;
     }
+
+    public List<DailyWord> get() {
+        return reminders;
+    }
 }

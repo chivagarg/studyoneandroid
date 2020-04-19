@@ -22,9 +22,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.demo.demoapp.domain.DailyWord;
+import com.demo.demoapp.domain.ReminderWords;
 import com.demo.demoapp.domain.User;
+import com.demo.demoapp.events.ReminderWordsEvent;
 import com.google.gson.Gson;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,7 +130,7 @@ public class WelcomeActivity extends AppCompatActivity {
                             List<DailyWord> repeatedWords = new ArrayList<>();
                             JSONArray repeatedWordJson = resp.getJSONArray("repeatedWords");
                             for (int i = 0; i < repeatedWordJson.length(); ++i) {
-                                JSONObject jsonWord = (JSONObject) (resp.getJSONArray("repeatedWords").get(0));
+                                JSONObject jsonWord = (JSONObject) (resp.getJSONArray("repeatedWords").get(i));
                                 repeatedWords.add(toDailyWord(jsonWord));
                             }
                             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -136,6 +139,8 @@ public class WelcomeActivity extends AppCompatActivity {
                             editor.putString("WordOfTheDay", gson.toJson(dailyWord));
                             editor.putString("ReminderWords", gson.toJson(repeatedWords));
                             editor.commit();
+
+                            EventBus.getDefault().post(new ReminderWordsEvent(new ReminderWords(repeatedWords)));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -148,7 +153,7 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         }){
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String,String> params = new HashMap<String, String>();
                 String bearerToken = "Bearer " + token;
                 params.put("Authorization",bearerToken);
