@@ -2,14 +2,29 @@
 <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card_view"
+    card_view:cardBackgroundColor="@color/reminderWordGrey"
     android:layout_gravity="center"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    card_view:cardCornerRadius="40dp">
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/card_view_word"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="card 1"
-        android:textSize="100dp"/>
+    android:layout_marginBottom="16dp"
+    card_view:cardCornerRadius="20dp">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_height="wrap_content">
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/card_view_word"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/subHeadingBlack"
+            android:textSize="36dp"/>
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/card_view_pronunciation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/subHeadingBlack"
+            android:textSize="14dp"/>
+    </LinearLayout>
 </androidx.cardview.widget.CardView>

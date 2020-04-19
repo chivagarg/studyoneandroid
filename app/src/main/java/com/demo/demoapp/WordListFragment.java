@@ -3,6 +3,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +23,7 @@ public class WordListFragment extends Fragment {
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private TextView reminderWordCountText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,6 +43,7 @@ public class WordListFragment extends Fragment {
         // specify an adapter
         adapter = new WordListAdapter(view.getContext(), new ArrayList<DailyWord>());
         recyclerView.setAdapter(adapter);
+        reminderWordCountText = (TextView)view.findViewById(R.id.word_for_review_count);
         return view;
     }
 
@@ -58,7 +61,7 @@ public class WordListFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(ReminderWordsEvent reminderWordsEvent) {
-        System.out.println("Received reminder count: " + reminderWordsEvent.getReminderWords().get().size());
+        reminderWordCountText.setText("(" + reminderWordsEvent.getReminderWords().get().size() + ")");
         adapter.setDailyWords(reminderWordsEvent.getReminderWords().get());
         adapter.notifyDataSetChanged();
         /* Do something */

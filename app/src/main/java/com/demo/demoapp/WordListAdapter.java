@@ -53,6 +53,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         ((TextView)holder.cardView.findViewById(R.id.card_view_word)).setText(dailyWords.get(position).getWord());
+        ((TextView)holder.cardView.findViewById(R.id.card_view_pronunciation)).setText(dailyWords.get(position).getPronunciation());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
