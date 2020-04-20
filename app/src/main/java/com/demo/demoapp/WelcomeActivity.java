@@ -25,6 +25,7 @@ import com.demo.demoapp.domain.DailyWord;
 import com.demo.demoapp.domain.ReminderWords;
 import com.demo.demoapp.domain.User;
 import com.demo.demoapp.events.ReminderWordsEvent;
+import com.demo.demoapp.events.UserPhotoEvent;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
@@ -63,23 +64,21 @@ public class WelcomeActivity extends AppCompatActivity {
 
         fetchDailyWords(user.getToken());
 
-        textView.setText("Welcome " + user.getName());
+        // textView.setText("Welcome " + user.getName());
 
-        ImageView imageView = findViewById(R.id.user_image);
+        new AsyncTaskLoadImage().execute(user.getPhotoUrl());
 
-        new AsyncTaskLoadImage(imageView).execute(user.getPhotoUrl());
-
-        goToDailyWordButton = findViewById(R.id.go_to_daily_word_button);
-        goToDailyWordButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent myIntent = new Intent(WelcomeActivity.this, WordDisplayActivity.class);
-                        myIntent.putExtra("DailyWord", new Gson().toJson(dailyWord));
-                        WelcomeActivity.this.startActivity(myIntent);;
-                    }
-                }
-        );
+//        goToDailyWordButton = findViewById(R.id.go_to_daily_word_button);
+//        goToDailyWordButton.setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Intent myIntent = new Intent(WelcomeActivity.this, WordDisplayActivity.class);
+//                        myIntent.putExtra("DailyWord", new Gson().toJson(dailyWord));
+//                        WelcomeActivity.this.startActivity(myIntent);;
+//                    }
+//                }
+//        );
 
 
     }
@@ -92,10 +91,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
     class AsyncTaskLoadImage  extends AsyncTask<String, String, Bitmap> {
         private final static String TAG = "AsyncTaskLoadImage";
-        private ImageView imageView;
-        public AsyncTaskLoadImage(ImageView imageView) {
-            this.imageView = imageView;
-        }
         @Override
         protected Bitmap doInBackground(String... params) {
             Bitmap bitmap = null;
@@ -109,7 +104,7 @@ public class WelcomeActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            imageView.setImageBitmap(bitmap);
+            EventBus.getDefault().post(new UserPhotoEvent(bitmap));
         }
     }
 
@@ -161,7 +156,7 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         };
 
-// Add the request to the RequestQueue.
+        // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 

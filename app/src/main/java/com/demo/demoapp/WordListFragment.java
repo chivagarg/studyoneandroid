@@ -1,5 +1,7 @@
 package com.demo.demoapp;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.demo.demoapp.domain.DailyWord;
+import com.demo.demoapp.domain.User;
 import com.demo.demoapp.events.ReminderWordsEvent;
+import com.demo.demoapp.events.UserPhotoEvent;
+import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,11 +29,17 @@ public class WordListFragment extends Fragment {
     private WordListAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private TextView reminderWordCountText;
+    private User user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("User", "");
+        user = gson.fromJson(json, User.class);
+
         View view =  inflater.inflate(R.layout.word_list_fragment, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.words);
 
@@ -41,7 +52,7 @@ public class WordListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter
-        adapter = new WordListAdapter(view.getContext(), new ArrayList<DailyWord>());
+        adapter = new WordListAdapter(new ArrayList<DailyWord>(), user);
         recyclerView.setAdapter(adapter);
         reminderWordCountText = (TextView)view.findViewById(R.id.word_for_review_count);
         return view;
@@ -64,6 +75,13 @@ public class WordListFragment extends Fragment {
         reminderWordCountText.setText("(" + reminderWordsEvent.getReminderWords().get().size() + ")");
         adapter.setDailyWords(reminderWordsEvent.getReminderWords().get());
         adapter.notifyDataSetChanged();
+        /* Do something */
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(UserPhotoEvent userPhotoEvent) {
+        adapter.setUserPhoto(userPhotoEvent.getUserPhotoBitmap());
+        adapter.notifyItemChanged(0);
         /* Do something */
     }
 }

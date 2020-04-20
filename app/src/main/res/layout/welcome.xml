@@ -5,65 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".WelcomeActivity">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="26dp"
-                android:text="@string/app_name"
-                android:textSize="24dp"
-                android:textStyle="bold"
-                android:fontFamily="@string/font_family_regular"
-                android:textColor="@color/titleBlack" />
-            <TextView
-                android:id="@+id/welcome_text"
-                android:text="Welcome Shiva"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="41dp"
-                android:fontFamily="@string/font_family_regular"
-                android:gravity="center"
-                android:textColor="@color/subHeadingBlack"
-                android:textSize="24dp" />
-            <ImageView
-                android:id="@+id/user_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginTop="24dp"
-                android:layout_gravity="center_horizontal"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:layout_marginTop="32dp"
-                android:layout_marginLeft="123dp"
-                android:layout_marginRight="123dp"
-                android:text="@string/daily_word_ready_prompt"
-                android:textSize="18dp"
-                android:fontFamily="@string/font_family_regular"
-                android:textColor="@color/subHeadingBlack" />
-            <Button
-                android:id="@+id/go_to_daily_word_button"
-                android:text="@string/daily_word_button_text"
-                android:background="@drawable/go_button_states"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@color/white"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="64dp"
-                android:layout_marginRight="64dp"
-                android:layout_marginTop="32dp" />
-        </LinearLayout>
         <fragment android:name="com.demo.demoapp.WordListFragment"
             android:id="@+id/word_list"
             android:layout_marginTop="80dp"
@@ -71,6 +12,5 @@
             android:layout_marginRight="24dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
