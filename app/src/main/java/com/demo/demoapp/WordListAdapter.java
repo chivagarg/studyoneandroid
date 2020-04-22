@@ -1,8 +1,12 @@
 package com.demo.demoapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.demo.demoapp.domain.DailyWord;
 import com.demo.demoapp.domain.User;
+import com.google.gson.Gson;
 
 import java.util.List;
 
@@ -21,10 +26,13 @@ public class WordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static final int TYPE_REMINDER_WORD = 2;
 
     private List<DailyWord> dailyWords;
+    private DailyWord wordOfTheDay;
     private Bitmap userPhoto;
     private User user;
+    private Context context;
 
-    WordListAdapter(List<DailyWord> dailyWords, User user) {
+    WordListAdapter(Context context, List<DailyWord> dailyWords, User user) {
+        this.context = context;
         this.dailyWords = dailyWords;
         this.user = user;
     }
@@ -82,6 +90,24 @@ public class WordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ImageView imageView = headerViewHolder.containerLinearLayout.findViewById(R.id.user_image);
                     imageView.setImageBitmap(userPhoto);
                 }
+                if (dailyWords.size() != 0) {
+                    TextView wordsForReviewCount = headerViewHolder.containerLinearLayout.findViewById(R.id.word_for_review_count);
+                    wordsForReviewCount.setText("(" + dailyWords.size() + ")");
+                }
+
+                if (wordOfTheDay != null) {
+                    Button goToDailyWordButton = headerViewHolder.containerLinearLayout.findViewById(R.id.go_to_daily_word_button);
+                    goToDailyWordButton.setOnClickListener(
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent myIntent = new Intent(context, WordDisplayActivity.class);
+                                    myIntent.putExtra("DailyWord", new Gson().toJson(wordOfTheDay));
+                                    context.startActivity(myIntent);;
+                                }
+                            }
+                    );
+                }
                 break;
 
             case TYPE_REMINDER_WORD:
@@ -106,6 +132,10 @@ public class WordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     void setDailyWords(List<DailyWord> dailyWords) {
         this.dailyWords = dailyWords;
+    }
+
+    void setWordOfTheDay(DailyWord wordOfTheDay) {
+        this.wordOfTheDay = wordOfTheDay;
     }
 
     void setUserPhoto(Bitmap userPhoto) {

@@ -8,13 +8,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -46,7 +41,6 @@ import static com.demo.demoapp.Constants.DAILY_WORDS_URL;
 public class WelcomeActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
-    private Button goToDailyWordButton;
     private DailyWord dailyWord;
 
     @Override
@@ -55,7 +49,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
         setContentView(R.layout.welcome);
 
-        TextView textView = findViewById(R.id.welcome_text);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         Gson gson = new Gson();
@@ -64,23 +57,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
         fetchDailyWords(user.getToken());
 
-        // textView.setText("Welcome " + user.getName());
-
         new AsyncTaskLoadImage().execute(user.getPhotoUrl());
-
-//        goToDailyWordButton = findViewById(R.id.go_to_daily_word_button);
-//        goToDailyWordButton.setOnClickListener(
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        Intent myIntent = new Intent(WelcomeActivity.this, WordDisplayActivity.class);
-//                        myIntent.putExtra("DailyWord", new Gson().toJson(dailyWord));
-//                        WelcomeActivity.this.startActivity(myIntent);;
-//                    }
-//                }
-//        );
-
-
     }
 
     @Override
@@ -135,7 +112,7 @@ public class WelcomeActivity extends AppCompatActivity {
                             editor.putString("ReminderWords", gson.toJson(repeatedWords));
                             editor.commit();
 
-                            EventBus.getDefault().post(new ReminderWordsEvent(new ReminderWords(repeatedWords)));
+                            EventBus.getDefault().post(new ReminderWordsEvent(new ReminderWords(repeatedWords), dailyWord));
 
                         } catch (JSONException e) {
                             e.printStackTrace();

@@ -5,7 +5,6 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,13 +21,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class WordListFragment extends Fragment {
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private TextView reminderWordCountText;
     private User user;
 
     @Override
@@ -52,9 +49,8 @@ public class WordListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter
-        adapter = new WordListAdapter(new ArrayList<DailyWord>(), user);
+        adapter = new WordListAdapter(getActivity(),new ArrayList<DailyWord>(), user);
         recyclerView.setAdapter(adapter);
-        reminderWordCountText = (TextView)view.findViewById(R.id.word_for_review_count);
         return view;
     }
 
@@ -72,8 +68,8 @@ public class WordListFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(ReminderWordsEvent reminderWordsEvent) {
-        reminderWordCountText.setText("(" + reminderWordsEvent.getReminderWords().get().size() + ")");
         adapter.setDailyWords(reminderWordsEvent.getReminderWords().get());
+        adapter.setWordOfTheDay(reminderWordsEvent.getWordOfTheDay());
         adapter.notifyDataSetChanged();
         /* Do something */
     }
