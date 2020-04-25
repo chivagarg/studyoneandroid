@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         String json = sharedPreferences.getString("User", "");
         User user = gson.fromJson(json, User.class);
 
+//        if (user != null)
+//            signOut();
+
         if (user!= null && user.getToken() != null  && !user.getToken().isEmpty()) {
             // proceed to next activity
             intentToWelcomeActivity();
