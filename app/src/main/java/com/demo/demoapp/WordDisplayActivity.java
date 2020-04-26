@@ -1,9 +1,11 @@
 package com.demo.demoapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +14,8 @@ import com.demo.demoapp.domain.DailyWord;
 import com.google.gson.Gson;
 
 public class WordDisplayActivity extends AppCompatActivity {
+
+    Button closeButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,16 @@ public class WordDisplayActivity extends AppCompatActivity {
 
         ((TextView)findViewById(R.id.daily_word_pronunciation)).setText("[" + dailyWord.getPronunciation() + "]");
         ((TextView)findViewById(R.id.daily_word_meaning)).setText(dailyWord.getMeaning());
+
+        Button close = findViewById(R.id.close_button);
+        close.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        finish();
+                    }
+                }
+        );
 
     }
 

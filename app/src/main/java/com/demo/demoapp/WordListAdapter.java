@@ -112,8 +112,19 @@ public class WordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             case TYPE_REMINDER_WORD:
                 WordViewHolder wordViewHolder = (WordViewHolder) holder;
-                ((TextView)wordViewHolder.cardView.findViewById(R.id.card_view_word)).setText(dailyWords.get(position - 1).getWord());
-                ((TextView)wordViewHolder.cardView.findViewById(R.id.card_view_pronunciation)).setText(dailyWords.get(position - 1).getPronunciation());
+                final DailyWord dailyWord = dailyWords.get(position - 1);
+                ((TextView)wordViewHolder.cardView.findViewById(R.id.card_view_word)).setText(dailyWord.getWord());
+                ((TextView)wordViewHolder.cardView.findViewById(R.id.card_view_pronunciation)).setText(dailyWord.getPronunciation());
+                wordViewHolder.cardView.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent myIntent = new Intent(context, WordDisplayActivity.class);
+                                myIntent.putExtra("DailyWord", new Gson().toJson(dailyWord));
+                                context.startActivity(myIntent);;
+                            }
+                        }
+                );
                 break;
         }
     }
