@@ -38,6 +38,9 @@ import java.util.Map;
 
 import static com.demo.demoapp.Constants.DAILY_WORDS_URL;
 
+// https://stackoverflow.com/questions/53131591/androidx-navigation-view-setnavigationitemselectedlistener-doesnt-work
+// https://developer.android.com/guide/navigation/navigation-ui#add_a_navigation_drawer
+
 public class WelcomeActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
