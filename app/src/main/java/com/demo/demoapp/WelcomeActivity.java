@@ -8,8 +8,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import androidx.appcompat.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -21,6 +30,7 @@ import com.demo.demoapp.domain.ReminderWords;
 import com.demo.demoapp.domain.User;
 import com.demo.demoapp.events.ReminderWordsEvent;
 import com.demo.demoapp.events.UserPhotoEvent;
+import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
@@ -41,8 +51,10 @@ import static com.demo.demoapp.Constants.DAILY_WORDS_URL;
 // https://stackoverflow.com/questions/53131591/androidx-navigation-view-setnavigationitemselectedlistener-doesnt-work
 // https://developer.android.com/guide/navigation/navigation-ui#add_a_navigation_drawer
 
-public class WelcomeActivity extends AppCompatActivity {
+public class WelcomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
+    private ActionBarDrawerToggle hamburger;
+    private DrawerLayout drawerLayout;
     private SharedPreferences sharedPreferences;
     private DailyWord dailyWord;
 
@@ -51,6 +63,22 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.welcome);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        // Required to show hamburger menu.
+        // https://stackoverflow.com/questions/28071763/toolbar-navigation-hamburger-icon-missing
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        hamburger = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_closed);
+        drawerLayout.addDrawerListener(hamburger);
+        hamburger.setDrawerIndicatorEnabled(true);
+        hamburger.syncState();
+
+        setNavigationViewListener();
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -68,6 +96,30 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        switch (item.getItemId()) {
+            case R.id.logout:
+                sharedPreferences.edit().remove("User").commit();
+                Intent nextIntent = new Intent(WelcomeActivity.this, MainActivity.class);
+                WelcomeActivity.this.startActivity(nextIntent);
+                break;
+            case R.id.all_words:
+                Toast.makeText(this, "All words clicked", Toast.LENGTH_LONG).show();
+                break;
+            default:
+                return false;
+        }
+        //close navigation drawer
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void setNavigationViewListener() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
 
     class AsyncTaskLoadImage  extends AsyncTask<String, String, Bitmap> {
         private final static String TAG = "AsyncTaskLoadImage";
@@ -125,6 +177,9 @@ public class WelcomeActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                if (error instanceof AuthFailureError) {
+                    Toast.makeText(WelcomeActivity.this, "Authentication failure", Toast.LENGTH_LONG).show();
+                }
             }
         }){
             @Override

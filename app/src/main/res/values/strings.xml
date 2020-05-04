@@ -6,4 +6,6 @@
     <string name="sign_in_button_text">Sign in with Google</string>
     <string name="words_for_review">Words for review</string>
     <string name="words_for_review_count">(\?)</string>
+    <string name="navigation_drawer_open">drawer open</string>
+    <string name="navigation_drawer_closed">drawer closed</string>
 </resources>

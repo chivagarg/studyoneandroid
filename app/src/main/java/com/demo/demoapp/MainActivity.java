@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void intentToWelcomeActivity() {
         Intent nextIntent = new Intent(MainActivity.this, WelcomeActivity.class);
-        nextIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //nextIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         MainActivity.this.startActivity(nextIntent);
     }
 
