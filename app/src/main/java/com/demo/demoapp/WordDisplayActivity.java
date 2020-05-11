@@ -37,11 +37,6 @@ public class WordDisplayActivity extends AppCompatActivity {
         TextView dailyWordTitle = findViewById(R.id.daily_word_title);
         dailyWordTitle.setText(dailyWord.getWord());
 
-//        View contentLayout = findViewById(R.id.content_layout);
-//        ViewGroup.LayoutParams layoutParams = contentLayout.getLayoutParams();
-//        layoutParams.width = dailyWordTitle.getWidth();
-//        contentLayout.setLayoutParams(layoutParams);
-
         ((TextView)findViewById(R.id.daily_word_pronunciation)).setText("[" + dailyWord.getPronunciation() + "]");
         ((TextView)findViewById(R.id.daily_word_meaning)).setText(dailyWord.getMeaning());
 

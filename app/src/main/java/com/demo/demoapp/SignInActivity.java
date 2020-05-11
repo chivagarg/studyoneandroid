@@ -2,6 +2,7 @@ package com.demo.demoapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,23 +36,27 @@ import java.io.UnsupportedEncodingException;
 import static com.demo.demoapp.Constants.CLIENT_ID;
 import static com.demo.demoapp.Constants.GET_OR_CREATE_URL;
 
-public class MainActivity extends AppCompatActivity {
+public class SignInActivity extends AppCompatActivity {
     private GoogleSignInClient googleSignInClient;
     private SignInButton signInButton;
     private int RC_SIGN_IN = 1;
     private SharedPreferences sharedPreferences;
+    private ProgressDialog progress;
+
     private boolean loginInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.signin_activity);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         Gson gson = new Gson();
         String json = sharedPreferences.getString("User", "");
         User user = gson.fromJson(json, User.class);
+
+        progress = new ProgressDialog(SignInActivity.this);
 
         if (user!= null && user.getToken() != null  && !user.getToken().isEmpty()) {
             // proceed to next activity
@@ -73,9 +77,16 @@ public class MainActivity extends AppCompatActivity {
             signInButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    signInButton.setVisibility(View.INVISIBLE);
                     if (loginInFlight) {
                         return;
                     }
+
+                    progress.setTitle("Log in to continue");
+                    progress.setMessage("Let's get you all set up...");
+                    // disable dismiss by tapping outside of the dialog
+                    progress.setCancelable(false);
+                    progress.show();
                     signIn();
                 }
             });
@@ -85,15 +96,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        //handleSignIn(GoogleSignIn.getLastSignedInAccount(this));
     }
 
     private void intentToWelcomeActivityAndFinish() {
-        Intent nextIntent = new Intent(MainActivity.this, WelcomeActivity.class);
+        Intent nextIntent = new Intent(SignInActivity.this, WelcomeActivity.class);
         //nextIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        MainActivity.this.startActivity(nextIntent);
+        SignInActivity.this.startActivity(nextIntent);
         // finish current activity so it's not on the back stack.
         finish();
     }
@@ -113,12 +121,11 @@ public class MainActivity extends AppCompatActivity {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-            loginInFlight = false;
+            authenticateStudyOne(task);
         }
     }
 
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+    private void authenticateStudyOne(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             authenticateStudyOne(account);
@@ -126,12 +133,18 @@ public class MainActivity extends AppCompatActivity {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w("LandingPageActivity", "signInResult:failed code=" + e.getStatusCode());
-            Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_LONG).show();
+            Toast.makeText(SignInActivity.this, "Sign in failed", Toast.LENGTH_LONG).show();
+            progress.dismiss();
+            loginInFlight = false;
         }
     }
 
     private void authenticateStudyOne(final GoogleSignInAccount account) {
         // Instantiate the RequestQueue.
+        progress.setTitle("Loading");
+        progress.setMessage("Almost there...");
+        progress.show();
+
         RequestQueue queue = Volley.newRequestQueue(this);
         JSONObject jsonBody = new JSONObject();
         try {
@@ -160,13 +173,15 @@ public class MainActivity extends AppCompatActivity {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            Toast.makeText(MainActivity.this, "Authenticate works!" + "token saved to pref "+
+                            Toast.makeText(SignInActivity.this, "Authenticate works!" + "token saved to pref "+
                                     sharedPreferences.getString("token", ""), Toast.LENGTH_LONG).show();
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(MainActivity.this, "Authenticate didn't work", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignInActivity.this, "Authenticate didn't work", Toast.LENGTH_LONG).show();
+                    progress.dismiss();
+                    loginInFlight = false;
                 }
             }) {
                 @Override
@@ -188,6 +203,8 @@ public class MainActivity extends AppCompatActivity {
             queue.add(stringRequest);
         } catch (JSONException e) {
             e.printStackTrace();
+            progress.dismiss();
+            loginInFlight = false;
         }
     }
 }

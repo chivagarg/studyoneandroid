@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -66,6 +65,8 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
     private DailyWord dailyWord;
 
     private GoogleSignInClient googleSignInClient;
+
+    private boolean fetchDailyWordsInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +141,7 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(WelcomeActivity.this, "Logout successful", Toast.LENGTH_LONG).show();
-                        Intent nextIntent = new Intent(WelcomeActivity.this, MainActivity.class);
+                        Intent nextIntent = new Intent(WelcomeActivity.this, SignInActivity.class);
                         WelcomeActivity.this.startActivity(nextIntent);
                         finish();
                     }
@@ -172,6 +173,12 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
     }
 
     private void fetchDailyWords(final String token) {
+        if (fetchDailyWordsInFlight){
+            return;
+        }
+
+        fetchDailyWordsInFlight = true;
+
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -204,6 +211,8 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
                             e.printStackTrace();
                         }
 
+                        // Unblock request no matter what the result.
+                        fetchDailyWordsInFlight = false;
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -211,6 +220,7 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
                 if (error instanceof AuthFailureError) {
                     Toast.makeText(WelcomeActivity.this, "Authentication failure", Toast.LENGTH_LONG).show();
                 }
+                fetchDailyWordsInFlight = false;
             }
         }){
             @Override
