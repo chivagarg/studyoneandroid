@@ -1,6 +1,5 @@
 package com.demo.demoapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -26,20 +25,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.demo.demoapp.Constants.CLIENT_ID;
-import static com.demo.demoapp.Constants.DAILY_WORDS_URL;
 import static com.demo.demoapp.Constants.GET_OR_CREATE_URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private SignInButton signInButton;
     private int RC_SIGN_IN = 1;
     private SharedPreferences sharedPreferences;
+    private boolean loginInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +54,9 @@ public class MainActivity extends AppCompatActivity {
         String json = sharedPreferences.getString("User", "");
         User user = gson.fromJson(json, User.class);
 
-//        if (user != null)
-//            signOut();
-
         if (user!= null && user.getToken() != null  && !user.getToken().isEmpty()) {
             // proceed to next activity
-            intentToWelcomeActivity();
+            intentToWelcomeActivityAndFinish();
         } else {
             // Configure sign-in to request the user's ID, email address, and basic
             // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -81,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
             signInButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (loginInFlight) {
+                        return;
+                    }
                     signIn();
                 }
             });
@@ -95,26 +90,18 @@ public class MainActivity extends AppCompatActivity {
         //handleSignIn(GoogleSignIn.getLastSignedInAccount(this));
     }
 
-    private void intentToWelcomeActivity() {
+    private void intentToWelcomeActivityAndFinish() {
         Intent nextIntent = new Intent(MainActivity.this, WelcomeActivity.class);
         //nextIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         MainActivity.this.startActivity(nextIntent);
+        // finish current activity so it's not on the back stack.
+        finish();
     }
 
     private void signIn() {
+        loginInFlight = true;
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    private void signOut() {
-        googleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                       // welcomeText.setText("You'll need to log in first");
-                        signInButton.setVisibility(View.VISIBLE);
-                    }
-                });
     }
 
     @Override
@@ -127,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
+            loginInFlight = false;
         }
     }
 
@@ -167,8 +155,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 Gson gson = new Gson();
                                 editor.putString("User", gson.toJson(user));
-                                editor.commit();
-                                intentToWelcomeActivity();
+                                editor.apply();
+                                intentToWelcomeActivityAndFinish();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -186,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     return "application/json; charset=utf-8";
                 }
                 @Override
-                public byte[] getBody() throws AuthFailureError {
+                public byte[] getBody() {
                     try {
                         return requestBody == null ? null : requestBody.getBytes("utf-8");
                     } catch (UnsupportedEncodingException uee) {

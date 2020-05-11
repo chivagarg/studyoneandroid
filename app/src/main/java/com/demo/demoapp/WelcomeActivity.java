@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,11 @@ import com.demo.demoapp.domain.ReminderWords;
 import com.demo.demoapp.domain.User;
 import com.demo.demoapp.events.ReminderWordsEvent;
 import com.demo.demoapp.events.UserPhotoEvent;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 
@@ -46,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.demo.demoapp.Constants.CLIENT_ID;
 import static com.demo.demoapp.Constants.DAILY_WORDS_URL;
 
 // https://stackoverflow.com/questions/53131591/androidx-navigation-view-setnavigationitemselectedlistener-doesnt-work
@@ -57,6 +64,8 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
     private DrawerLayout drawerLayout;
     private SharedPreferences sharedPreferences;
     private DailyWord dailyWord;
+
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +98,16 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
         fetchDailyWords(user.getToken());
 
         new AsyncTaskLoadImage().execute(user.getPhotoUrl());
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(CLIENT_ID)
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     @Override
@@ -101,9 +120,7 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
         // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.logout:
-                sharedPreferences.edit().remove("User").commit();
-                Intent nextIntent = new Intent(WelcomeActivity.this, MainActivity.class);
-                WelcomeActivity.this.startActivity(nextIntent);
+                signOut();
                 break;
             case R.id.all_words:
                 Toast.makeText(this, "All words clicked", Toast.LENGTH_LONG).show();
@@ -114,6 +131,20 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
         //close navigation drawer
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void signOut() {
+        sharedPreferences.edit().clear().apply();
+        googleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(WelcomeActivity.this, "Logout successful", Toast.LENGTH_LONG).show();
+                        Intent nextIntent = new Intent(WelcomeActivity.this, MainActivity.class);
+                        WelcomeActivity.this.startActivity(nextIntent);
+                        finish();
+                    }
+                });
     }
 
     private void setNavigationViewListener() {
@@ -165,7 +196,7 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationView
                             Gson gson = new Gson();
                             editor.putString("WordOfTheDay", gson.toJson(dailyWord));
                             editor.putString("ReminderWords", gson.toJson(repeatedWords));
-                            editor.commit();
+                            editor.apply();
 
                             EventBus.getDefault().post(new ReminderWordsEvent(new ReminderWords(repeatedWords), dailyWord));
 
